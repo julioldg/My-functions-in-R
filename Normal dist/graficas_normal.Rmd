@@ -1,0 +1,163 @@
+---
+title: "Graficas distribuciones normales"
+author: "Julio Ladron de Guevara"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+always_allow_html: true
+---
+
+```{r setup, echo = FALSE}
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.keep = "all",
+  fig.width = 6, # ancho en pulgadas
+  fig.height = 4 # alto en pulgadas
+)
+
+```
+
+
+```{r}
+
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+
+
+install.packages("carData")
+install.packages("prettyR")
+install.packages('latexpdf', repos= "http://cran.us.r-project.org")
+install.packages('tinytex', repos= "http://cran.us.r-project.org")
+
+```
+
+
+## Funcion de densidad
+
+Dada una variable aleatoria X $\sim$ N($\mu$, $\sigma^2$), crearemos una funcion de dos variables que devuelva su funcion de densidad.
+
+En este caso, qnorm(0.999) nos devuelve el cuantil correspondiente al percentil 99.9 de la distribución normal estándar, que representa un valor muy alejado de la media y, por lo tanto, proporciona un rango amplio de valores para los límites del eje x.
+
+```{r}
+
+graf_densidadN <- function(a,b){
+  q <- qnorm(0.999)
+  xlim_left <- a - q*b
+  xlim_right <- a + q*b
+  curve(dnorm(x,a,b),
+        xlim = c(xlim_left, xlim_right), 
+        col = "blue",
+        lwd = 2,
+        xlab = "x",
+        ylab = "f(x)",
+        main = paste("Funcion de densidad N(",a,",",b,")"))
+  
+}
+
+
+``` 
+
+
+## Funcion de distribución
+
+Dada una variable aleatoria X $\sim$ N($\mu$, $\sigma^2$), crearemos una funcion de dos variables que devuelva su funcion de distribucion.
+
+En este caso, qnorm(0.999) nos devuelve el cuantil correspondiente al percentil 99.9 de la distribución normal estándar, que representa un valor muy alejado de la media y, por lo tanto, proporciona un rango amplio de valores para los límites del eje x
+
+```{r}
+graf_distribucionN <- function(a, b) {
+  q <- qnorm(0.999)
+  xlim_left <- a - q * b
+  xlim_right <- a + q * b
+  curve(pnorm(x, a, b), 
+        xlim = c(xlim_left, xlim_right), 
+        ylim = c(0, 1),
+        col = "blue",
+        lwd = 2,
+        xlab = "x",
+        ylab = "F(x)",
+        main = paste("Funcion de distribucion N(", a, ",", b, ")"))
+}
+
+
+```
+
+## Area bajo la curva
+
+Dada una variable aleatoria X $\sim$ N($\mu$, $\sigma^2$) y dados dos puntos $\quad x, y$ $\in \mathbb{R}$ tales que $x \neq y$ crearemos una funcion de cuatro variables que devuelva el area bajo la funcion  de densidad entre esas dos variables. 
+
+
+```{r}
+
+areadeN_entre <- function(a,b,c,d){
+  z = max(c,d)
+  w = min(c,d)
+  
+  region = seq(w,z,0.01)
+  
+  xP = c(w,region,z)
+  
+  yP = c(0,dnorm(region, a, b), 0)
+  
+  y_max = max(dnorm(region, a, b))
+  
+  curve(dnorm(x,a,b),
+        xlim = c(w - abs(w)*0.1, z + abs(z)*0.1), 
+        yaxs = "i",
+        ylim = c(0, y_max + y_max * 0.1), 
+        col = "blue",
+        lwd = 2,
+        xlab = "f(x)",
+        main = paste("Area bajo N(",a,",",b,") entre ", c, " y ", d))
+  polygon(xP, yP, col = "orange")
+}
+
+
+```
+
+```{r}
+
+
+# Función normal 1
+mu1 <- 5
+sigma1 <- 2
+graf_densidadN(mu1, sigma1)
+graf_distribucionN(mu1, sigma1)
+areadeN_entre(mu1, sigma1, 2, 8)
+areadeN_entre(mu1, sigma1, 4, 7)
+
+# Función normal 2
+mu2 <- -3
+sigma2 <- 1.5
+graf_densidadN(mu2, sigma2)
+graf_distribucionN(mu2, sigma2)
+areadeN_entre(mu2, sigma2, -4, 0)
+areadeN_entre(mu2, sigma2, -2, 2)
+
+# Función normal 3
+mu3 <- 0
+sigma3 <- 0.5
+graf_densidadN(mu3, sigma3)
+graf_distribucionN(mu3, sigma3)
+areadeN_entre(mu3, sigma3, -1, 1)
+areadeN_entre(mu3, sigma3, -2, 2)
+
+# Función normal 4
+mu4 <- 10
+sigma4 <- 5
+graf_densidadN(mu4, sigma4)
+graf_distribucionN(mu4, sigma4)
+areadeN_entre(mu4, sigma4, 7, 13)
+areadeN_entre(mu4, sigma4, 9, 12)
+
+# Función normal 5
+mu5 <- -2
+sigma5 <- 0.1
+graf_densidadN(mu5, sigma5)
+graf_distribucionN(mu5, sigma5)
+areadeN_entre(mu5, sigma5, -2.1, -1.9)
+areadeN_entre(mu5, sigma5, -2.2, -1.9)
+```
