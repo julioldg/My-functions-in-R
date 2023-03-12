@@ -1,0 +1,93 @@
+---
+title: "Bland_Altman"
+author: "Julio"
+date: "30 de enero de 2023"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+  always_allow_html: true
+---
+  
+```{r setup, echo = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r}
+
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+
+
+install.packages("carData")
+install.packages("prettyR")
+install.packages('latexpdf', repos= "http://cran.us.r-project.org")
+install.packages('tinytex', repos= "http://cran.us.r-project.org")
+
+```
+
+
+### Bland-Altman
+
+El gráfico de Bland y Altman es una herramienta gráfica utilizada para comparar la concordancia entre dos métodos de medición o dos observadores distintos. El gráfico se basa en:
+ 
+  1) La representación de la diferencia entre las mediciones de los dos métodos en el eje vertical 
+  2) El promedio de las dos mediciones en el eje horizontal.
+
+El gráfico se dibuja trazando una línea horizontal en el promedio de las diferencias y dos líneas de límite de acuerdo con un nivel predefinido de acuerdo entre los dos métodos. Estas líneas de límite se dibujan por encima y por debajo de la línea central, a una distancia igual a +/- 1.96 veces la desviación estándar de las diferencias.
+
+Suponemos que los metodos estan en orden y tienen misma longitud
+
+```{r}
+library(ggplot2)
+
+create_bland_altman_plot <- function(method1, method2) {
+  # Calculate the difference between the two methods
+  diff <- method1 - method2
+  
+  # Calculate the mean difference and the limits of agreement
+  mean_diff <- mean(diff)
+  loa_upper <- mean_diff + 1.96 * sd(diff)
+  loa_lower <- mean_diff - 1.96 * sd(diff)
+  
+  # Create a data frame with the method means, method differences, and the mean difference
+  data <- data.frame(mean = (method1 + method2) / 2, difference = diff, mean_diff = mean_diff)
+  
+  # Create the Bland-Altman plot using ggplot2
+  ggplot(data, aes(x = mean, y = difference)) +
+    geom_point(pch = 1, size = 1.5, col = "black") +
+    labs(title = "Bland-Altman Plot",
+         x = "Mean of methods",
+         y = "Difference between methods") +
+    geom_hline(yintercept = mean_diff, lwd = 1) +
+    geom_hline(yintercept = 0, lty = 3, col = "grey30") +
+    geom_hline(yintercept = loa_upper, lty = 2, col = "purple4") +
+    geom_hline(yintercept = loa_lower, lty = 2, col = "purple4") +
+    ylim(mean_diff - 3 * sd(diff), mean_diff + 3 * sd(diff)) +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          plot.title = element_text(hjust = 0.5)) +
+    geom_text(label = "Bias", x = max(data$mean) * 0.9, y = mean_diff * 1.1, size = 3, colour = "black") +
+    geom_text(label = "+1.96sd", x = max(data$mean) * 0.9, y = loa_upper * 0.95, size = 3, colour = "green4") +
+    geom_text(label = "-1.96sd", x = max(data$mean) * 0.9, y = loa_lower * 1.05, size = 3, colour = "green4") +
+    theme_bw()
+}
+
+
+
+
+library(readxl)
+
+data = read_excel("COMPARACION_METODOS.xlsx")
+
+metodo1 = data$NEW_METHOD
+metodo1
+
+metodo2 = data$CURRENT_METHOD
+metodo2
+
+create_bland_altman_plot(metodo1, metodo2)
+
+
+``` 
