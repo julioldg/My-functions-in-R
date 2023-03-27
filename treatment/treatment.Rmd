@@ -1,0 +1,78 @@
+---
+title: "Tratamiento"
+author: "Julio Ladron de Guevara"
+date: "2023-03-13"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+  always_allow_html: true
+---
+  
+This function is used when we want to compare a health measurement of a group of patients, after and before a treatment. To do so we need the ggplot2 library. The function variables are dataset, before, after and two colours.
+  
+  
+```{r setup, echo = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+options(repos = c(CRAN = "https://cran.rstudio.com"))
+
+install.packages("carData")
+install.packages("prettyR")
+install.packages('latexpdf', repos= "http://cran.us.r-project.org")
+install.packages('tinytex', repos= "http://cran.us.r-project.org")
+
+```
+
+```{r}
+
+library(ggplot2)
+
+tratamiento <- function(dataset, antes, despues, color1, color2){
+  # Calcular la diferencia entre las variables "antes" y "después"
+  dataset$diferencia <- dataset[[despues]] - dataset[[antes]]
+  
+  # Crear el gráfico de barras con escala de color
+  ggplot(data = dataset, aes(x = rownames(dataset),
+                             y = diferencia, fill = diferencia)) +
+    geom_bar(stat = "identity") +
+    xlab("Categoría") +
+    ylab("Diferencia") +
+    ggtitle("Diferencia de Salud en los Tratamientos") +
+    scale_fill_gradient(low = color1, high = color2) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+```
+
+
+
+```{r}
+library(MASS)
+
+data("anorexia")
+
+data = anorexia
+
+anorexia_FT = subset (anorexia,
+                      subset = Treat == "FT")
+
+tratamiento(anorexia_FT, "Prewt", "Postwt","red3","green3")
+
+tratamiento(anorexia_FT, "Prewt", "Postwt","lightblue2","red3")
+```
+
+
+
+
+
